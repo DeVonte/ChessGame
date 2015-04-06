@@ -83,27 +83,26 @@ public class ChessGame implements Runnable {
                             boolean validwMove = false;
                             boolean killshot;
                             while (!validwMove) {
-                                if(!colorSwitched){
-									pMove = (PlayerMove) ois1.readObject(); //read the player's move                                                                     
-									c = mV.checkForPieceSwitch(pMove, board);
-									killshot = mV.kingAtTarget(pMove, board);
-									validwMove = mV.Validate(pMove, board); //check if it is valid, repeat while loop if it isn't                            
-									if(killshot&&validwMove){
-										gameOver=true;
-										Update win = new Update(true, COLOR.WHITE);
-										oos1.writeObject(win);
-										oos2.writeObject(win);
-									}
-									else if (!validwMove) {
-										Update redo = new Update(null, board.gamestate, ucount++, false);
-										oos1.writeObject(redo);
-									}
-									
-									if(c && validwMove){
-										Update upd = new Update(true);
-										oos1.writeObject(upd);
-										changeP = (PlayerMove) ois1.readObject();
-								   }
+                                if (!colorSwitched) {
+                                    pMove = (PlayerMove) ois1.readObject(); //read the player's move                                                                     
+                                    c = mV.checkForPieceSwitch(pMove, board);
+                                    killshot = mV.kingAtTarget(pMove, board);
+                                    validwMove = mV.Validate(pMove, board); //check if it is valid, repeat while loop if it isn't                            
+                                    if (killshot && validwMove) {
+                                        gameOver = true;
+                                        Update win = new Update(true, COLOR.WHITE);
+                                        oos1.writeObject(win);
+                                        oos2.writeObject(win);
+                                    } else if (!validwMove) {
+                                        Update redo = new Update(null, board.gamestate, ucount++, false);
+                                        oos1.writeObject(redo);
+                                    }
+
+                                    if (c && validwMove) {
+                                        Update upd = new Update(true);
+                                        oos1.writeObject(upd);
+                                        changeP = (PlayerMove) ois1.readObject();
+                                    }
                                 }
                                 else{
                                     pMove = (PlayerMove) ois2.readObject(); //read the player's move

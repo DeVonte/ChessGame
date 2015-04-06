@@ -7,21 +7,22 @@ package multiplayerchess;
 
 import java.io.Serializable;
 
-
 public class View implements Serializable {
+
     public static String[][] str = new String[8][8];
-    public View(){
-        
+
+    public View() {
+
     }
+
     public void printBoard(Piece[][] board) {
         for (int i = 7; i >= 0; i--) {
-            for (int j = 0; j <8; j++) {
+            for (int j = 0; j < 8; j++) {
                 String s = "";
                 Piece p;
                 if (board[j][i] == null) {
                     s = "-";
-                } 
-                else {
+                } else {
                     p = board[j][i];
                     switch (p.color) {
                         case WHITE:
