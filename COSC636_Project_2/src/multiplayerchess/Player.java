@@ -2,8 +2,11 @@ package multiplayerchess;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.event.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -39,8 +42,15 @@ public class Player extends JFrame implements Runnable {
     String destinationIP;
     InetAddress ip;
     BufferedReader input;
+    int mouseX, mouseY, newMouseX, newMouseY;
+    public boolean firstClick = false;
+    public boolean secondClick = false;
+    public Color sourceColor = null;
+    public Color sourceColor1 = null;
+    public JButton colorHolder = null;
+    public int l = 0;
 
-    public static JPanel[][] pnlCells = new JPanel[8][8];
+    public JButton[][] pnlCells = new JButton[8][8];
     public JPanel pnlBoard = new JPanel(new GridLayout(8, 8));
     public JPanel pnlText = new JPanel();
     public JPanel pnlMain = new JPanel(new GridLayout(2, 1));
@@ -57,6 +67,8 @@ public class Player extends JFrame implements Runnable {
     public ImageIcon kingBlack = new ImageIcon(System.getProperty("user.dir") + "/build/classes/images/B_King.png");
     public ImageIcon kingWhite = new ImageIcon(System.getProperty("user.dir") + "/build/classes/images/W_King.png");
     public Container c;
+    public boolean boolMoveSelection = false;
+    public Point pntMoveFrom, pntMoveTo;
 
     public Player(String nm, Socket sock) throws UnknownHostException {
         input = new BufferedReader(new InputStreamReader(System.in));
@@ -68,12 +80,10 @@ public class Player extends JFrame implements Runnable {
         v = new View();
         name = nm;
         clientSocket = sock;
-        /*clientSocket = new Socket(sock.getInetAddress().getHostAddress(), 8081);
-         String destinationIP = in.nextLine();
-         ip = InetAddress.getByName(destinationIP);*/
+        pnlBoard.repaint();
 
         c = getContentPane();
-        setBounds(100, 75, 470, 600);
+        setBounds(0, 0, 460, 460);
         setBackground(new Color(204, 204, 204));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setTitle("Chess");
@@ -143,19 +153,21 @@ public class Player extends JFrame implements Runnable {
                 if (u.gameOver) {
                     gameOver = true;
                     if (u.winner == team) {
-                        System.out.println(name + " you won!");
+                        JOptionPane.showMessageDialog(null, "You Win!");
                     } else {
-                        System.out.println(name + " you lost!");
+                        JOptionPane.showMessageDialog(null, "You Lost!");
                     }
                     clientSocket.close();
                 } else {
 
                     if (u.typeRequest) {
+
                         TYPE ty = changePiece();
                         PlayerMove pmv = new PlayerMove(ty);
                         objectOut.writeObject(pmv);
                     } else {
                         if (u.pM != null) { //either first move or server didn't like last move submitted
+
                             board = doMove(u.pM, board);
                             if (u.changeP) {
                                 if (team == COLOR.WHITE) {
@@ -171,6 +183,7 @@ public class Player extends JFrame implements Runnable {
                             if (team == COLOR.WHITE) {
                                 str = convertBoard(board.board);/////reset strings
                                 arrangePieces();//pring board
+
                             } else {
                                 str = convertBoard(board.blackboard);/////reset strings
                                 arrangePieces();//pring board
@@ -194,10 +207,11 @@ public class Player extends JFrame implements Runnable {
                                 str = convertBoard(board.blackboard);/////reset strings
                                 arrangePieces();//pring board
                             }
-                            PlayerMove pM = turn(); //send turn to server
-                            objectOut.writeObject(pM); //send turn to server
-                            System.out.println(name + ": sent move to server");
-                            s.suspend();
+
+                            //PlayerMove pM = turn(); //send turn to server
+                            //objectOut.writeObject(pM); //send turn to server
+                            //System.out.println(name + ": sent move to server");
+                            //s.suspend();
                         } else {
 
                         }
@@ -213,25 +227,26 @@ public class Player extends JFrame implements Runnable {
     }
 
     public PlayerMove turn() throws IOException {
+
         System.out.print(team + " (" + name + ") " + " TURN");
-        System.out.println(" Enter source position X,Y: ");
-        String source = JOptionPane.showInputDialog(null, "Enter source position X,Y:", "");
+        //System.out.println(" Enter source position X,Y: ");
+        //String source = JOptionPane.showInputDialog(null, "Enter source position X,Y:", "");
         //source = input.readLine();
         //System.out.println("source: " +source);
-        int sourceX = Integer.parseInt("" + source.charAt(0));
-        int sourceY = Integer.parseInt("" + source.charAt(2));
-        System.out.print(team + " TURN ");
-        System.out.println("Enter target position X,Y: ");
-        String target = JOptionPane.showInputDialog(null, "Enter target position X,Y:", "");
-        int targetX = Integer.parseInt("" + target.charAt(0));
-        int targetY = Integer.parseInt("" + target.charAt(2));
+        //int sourceX = Integer.parseInt("" + source.charAt(0));
+        //int sourceY = Integer.parseInt("" + source.charAt(2));
+        //System.out.print(team + " TURN ");
+        //System.out.println("Enter target position X,Y: ");
+        //String target = JOptionPane.showInputDialog(null, "Enter target position X,Y:", "");
+        //int targetX = Integer.parseInt("" + target.charAt(0));
+        //int targetY = Integer.parseInt("" + target.charAt(2));
         if (team == COLOR.BLACK) {
-            sourceX = 7 - sourceX;
-            sourceY = 7 - sourceY;
-            targetX = 7 - targetX;
-            targetY = 7 - targetY;
+            mouseX = 7 - mouseX;
+            mouseY = 7 - mouseY;
+            newMouseX = 7 - newMouseX;
+            newMouseY = 7 - newMouseY;
         }
-        return new PlayerMove(team, sourceX, sourceY, targetX, targetY);
+        return new PlayerMove(team, mouseX, mouseY, newMouseX, newMouseY);
     }
 
     public String convertTime(long time) {
@@ -259,28 +274,7 @@ public class Player extends JFrame implements Runnable {
             b.blackboard[tempTargetX][tempTargetY] = piece; //move the piece
             b.blackboard[tempSourceX][tempSourceY] = null;// set original space to null
         }
-        /*
-         if (pM.targetY == 0 && pM.playerColor == COLOR.BLACK && piece.type == Piece.TYPE.PAWN && team == COLOR.BLACK) {
-         Piece.TYPE t = changePiece();
-         b.board[pM.targetX][pM.targetY].type = t;
-         PlayerMove p = new PlayerMove(pM.targetX, pM.targetY, t, COLOR.BLACK);
-         objectOut.writeObject(p); //send turn to server
-         System.out.println(name + ": sent peice change to server");
-         //System.out.println(team+": successfully changed piece to " +b.board[pM.targetX][pM.targetY].type.toString());
 
-         }
-         if (pM.targetY == 7 && pM.playerColor == COLOR.WHITE && piece.type == Piece.TYPE.PAWN && team == COLOR.WHITE) {
-         Piece.TYPE t = changePiece();
-         b.board[pM.targetX][pM.targetY].type = t;
-         PlayerMove p = new PlayerMove(pM.targetX, pM.targetY, t, COLOR.WHITE);
-         objectOut.writeObject(p); //send turn to server
-         System.out.println(name + ": sent peice change to server");
-         //System.out.println(team+": successfully changed piece to " +b.board[pM.targetX][pM.targetY].type.toString() );
-         }
-
-         */
-
-        //b.changeState(); //change gamestate
         return b;
     }
 
@@ -309,8 +303,8 @@ public class Player extends JFrame implements Runnable {
     public void drawBoard() {
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
-                pnlCells[y][x] = new JPanel(new BorderLayout());
-                pnlBoard.add(pnlCells[y][x]);
+                pnlCells[y][x] = new JButton();
+                pnlBoard.add(pnlCells[y][x], new BorderLayout());
                 if (y % 2 == 0) {
                     if (x % 2 != 0) {
                         pnlCells[y][x].setBackground(Color.DARK_GRAY);
@@ -332,23 +326,88 @@ public class Player extends JFrame implements Runnable {
         for (int i = 7; i >= 0; i--) {
             for (int j = 0; j < 8; j++) {
 
-                pnlCells[i][j].add(getPieceObject(str[(7 - i)][j]), BorderLayout.CENTER);
-                pnlCells[i][j].validate();
+                pnlCells[i][j].removeAll(); //remove all pieces so piece doesnt stay in same place
+
                 //System.out.println(j+", "+(i)+":"+v.str[(7-i)][j]);
             }
         }
-        /*  
-         
-         pnlCells[7][0].add(getPieceObject(v.str[0][0]), BorderLayout.CENTER);
-         //pnlCells[0][0].validate();
-         System.out.println("piece"+v.str[0][0]);
-         
-         pnlCells[7][1].add(getPieceObject(v.str[0][1]), BorderLayout.CENTER);
-         //pnlCells[0][0].validate();
-         System.out.println("piece"+v.str[0][1]);
-         */
 
+        for (int i = 7; i >= 0; i--) {
+            for (int j = 0; j < 8; j++) {
+                final int tempi = i;
+                final int tempj = j;
+                pnlCells[i][j].add(getPieceObject(str[(7 - i)][j]), BorderLayout.CENTER);
+                pnlCells[i][j].validate();
+                if (pnlCells[i][j].getActionListeners().length < 1) {
+                    pnlCells[i][j].addActionListener(ml); //add action listener so we can check if user presses button
+                }
+            }
+        }
     }
+
+    ActionListener ml = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            try {
+                System.out.println("Count of listeners: " + ((JButton) e.getSource()).getActionListeners().length);
+                if (firstClick == false || secondClick == false) {
+                    JButton source = null;
+                    if (e.getSource() instanceof JButton) {
+                        source = (JButton) e.getSource();
+                    } else {
+                        return;
+                    }
+                    int tempi = 0;
+                    int tempj = 0;
+
+                    for (int i = 0; i < pnlCells.length; i++) {
+                        for (int j = 0; j < pnlCells[i].length; j++) {
+                            if (pnlCells[i][j] == source) {
+                                tempi = i;
+                                tempj = j;
+                                break;
+                            }
+                        }
+                    }
+                    if (firstClick == false) {
+                        colorHolder = source;
+                        sourceColor = source.getBackground();
+
+                        source.setBackground(Color.red);
+                        mouseX = tempj;
+                        mouseY = 7 - tempi;
+                        System.out.println("First You pressed" + mouseX + ", " + mouseY);
+                        firstClick = true;
+                    } else if (secondClick == false) {
+                        colorHolder.setBackground(sourceColor);
+                        sourceColor1 = source.getBackground();
+                        source.setBackground(Color.blue);
+                        newMouseX = tempj;
+                        newMouseY = 7 - tempi;
+                        System.out.println("Second You pressed" + newMouseX + ", " + newMouseY);
+                        secondClick = true;
+                    }
+
+                    if (firstClick == true && secondClick == true) {
+                        //Thread.sleep(500);
+                        source.setBackground(sourceColor1);
+                        firstClick = false;
+                        secondClick = false;
+                        PlayerMove pM = turn(); //send turn to server
+                        objectOut.writeObject(pM); //send turn to server
+                        System.out.println(name + ": sent move to server");
+                        s.suspend();
+                    }
+
+                }
+
+            } catch (IOException ex) {
+                Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+    };
 
     public JLabel getPieceObject(String strPieceName) {
         JLabel lblTemp;
@@ -404,7 +463,7 @@ public class Player extends JFrame implements Runnable {
                             s += "R";
                             break;
                         case KNIGHT:
-                            s += "K";
+                            s += "N";
                             break;
                         case BISHOP:
                             s += "B";
@@ -427,4 +486,5 @@ public class Player extends JFrame implements Runnable {
         }
         return str;
     }
+
 }

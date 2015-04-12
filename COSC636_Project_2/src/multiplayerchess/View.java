@@ -37,7 +37,7 @@ public class View implements Serializable {
                             s += "R";
                             break;
                         case KNIGHT:
-                            s += "K";
+                            s += "N";
                             break;
                         case BISHOP:
                             s += "B";

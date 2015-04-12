@@ -86,8 +86,8 @@ public class ChessBoard extends JFrame implements Serializable {
         addOtherPiece(COLOR.WHITE, TYPE.ROOK, 7, 0);
         addOtherPiece(COLOR.WHITE, TYPE.KNIGHT, 7, 1);
         addOtherPiece(COLOR.WHITE, TYPE.BISHOP, 7, 2);
-        addOtherPiece(COLOR.WHITE, TYPE.QUEEN, 7, 3);
-        addOtherPiece(COLOR.WHITE, TYPE.KING, 7, 4);
+        addOtherPiece(COLOR.WHITE, TYPE.KING, 7, 3);
+        addOtherPiece(COLOR.WHITE, TYPE.QUEEN, 7, 4);
         addOtherPiece(COLOR.WHITE, TYPE.BISHOP, 7, 5);
         addOtherPiece(COLOR.WHITE, TYPE.KNIGHT, 7, 6);
         addOtherPiece(COLOR.WHITE, TYPE.ROOK, 7, 7);
@@ -98,8 +98,8 @@ public class ChessBoard extends JFrame implements Serializable {
         addOtherPiece(COLOR.BLACK, TYPE.ROOK, 0, 0);
         addOtherPiece(COLOR.BLACK, TYPE.KNIGHT, 0, 1);
         addOtherPiece(COLOR.BLACK, TYPE.BISHOP, 0, 2);
-        addOtherPiece(COLOR.BLACK, TYPE.QUEEN, 0, 3);
-        addOtherPiece(COLOR.BLACK, TYPE.KING, 0, 4);
+        addOtherPiece(COLOR.BLACK, TYPE.KING, 0, 3);
+        addOtherPiece(COLOR.BLACK, TYPE.QUEEN, 0, 4);
         addOtherPiece(COLOR.BLACK, TYPE.BISHOP, 0, 5);
         addOtherPiece(COLOR.BLACK, TYPE.KNIGHT, 0, 6);
         addOtherPiece(COLOR.BLACK, TYPE.ROOK, 0, 7);
