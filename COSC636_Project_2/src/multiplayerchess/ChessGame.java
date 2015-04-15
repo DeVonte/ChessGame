@@ -64,8 +64,20 @@ public class ChessGame implements Runnable {
                 u2 = new Update(nameColor1.name, COLOR.WHITE, false);
                 colorSwitched = true;
             } else {
-                u1 = new Update(nameColor2.name, COLOR.WHITE, false);
-                u2 = new Update(nameColor1.name, COLOR.BLACK, false);
+            	int tmp = (int) ( Math.random() * 2 + 1);
+            	
+            	if (tmp == 1){
+            		nameColor1.dColor = "white";
+            		nameColor2.dColor = "black";
+                    u1 = new Update(nameColor2.name, COLOR.WHITE, false);
+                    u2 = new Update(nameColor1.name, COLOR.BLACK, false);
+            	}
+            	else{
+            		nameColor1.dColor = "black";
+            		nameColor2.dColor = "white";
+                    u1 = new Update(nameColor2.name, COLOR.BLACK, false);
+                    u2 = new Update(nameColor1.name, COLOR.WHITE, false);
+            	}
             }
             oos1.writeObject(u1);
             oos2.writeObject(u2);

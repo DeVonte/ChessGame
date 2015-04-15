@@ -12,14 +12,14 @@ import multiplayerchess.Piece.COLOR;
 
 public class MoveValidator implements Serializable {
     private static final long serialVersionUID = -9020988873854556911L;
+    
     ChessBoard board;
-    Scanner in;
     
     public MoveValidator(){
-        in = new Scanner(System.in);
+        
     }
-    public boolean Validate(PlayerMove pM, ChessBoard board){
-        boolean valid= true;
+    public boolean Validate(PlayerMove pM, ChessBoard board){  
+        boolean valid = false;
         int sX = pM.sourceX;
         int sY = pM.sourceY;
         int tX = pM.targetX;

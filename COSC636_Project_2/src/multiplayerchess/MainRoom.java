@@ -151,7 +151,7 @@ public class MainRoom extends JFrame implements ActionListener {
         ClientReceiver receiver;
 
         try {
-            InetAddress ip = InetAddress.getByName("10.20.102.14");
+            InetAddress ip = InetAddress.getByName("localhost");
             socket = new Socket(ip, 8080);
             objectOut = new ObjectOutputStream(socket.getOutputStream());
             objectIn = new ObjectInputStream(socket.getInputStream());

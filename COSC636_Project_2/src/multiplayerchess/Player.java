@@ -1,27 +1,25 @@
 package multiplayerchess;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.GridLayout;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 import multiplayerchess.Piece.*;
+
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
+
 import javax.swing.*;
-import javax.swing.JPanel;
+
 import static multiplayerchess.View.str;
+
 import org.apache.commons.lang3.time.*;
 
 public class Player extends JFrame implements Runnable {
@@ -52,8 +50,8 @@ public class Player extends JFrame implements Runnable {
 
     public JButton[][] pnlCells = new JButton[8][8];
     public JPanel pnlBoard = new JPanel(new GridLayout(8, 8));
-    public JPanel pnlText = new JPanel();
-    public JPanel pnlMain = new JPanel(new GridLayout(2, 1));
+    public JPanel pnlText = new JPanel(new BorderLayout());
+    public JPanel pnlMain = new JPanel();
     public ImageIcon rookBlack = new ImageIcon(System.getProperty("user.dir") + "/build/classes/images/B_Rook.png");
     public ImageIcon rookWhite = new ImageIcon(System.getProperty("user.dir") + "/build/classes/images/W_Rook.png");
     public ImageIcon pawnBlack = new ImageIcon(System.getProperty("user.dir") + "/build/classes/images/B_Pawn.png");
@@ -66,6 +64,7 @@ public class Player extends JFrame implements Runnable {
     public ImageIcon queenWhite = new ImageIcon(System.getProperty("user.dir") + "/build/classes/images/W_Queen.png");
     public ImageIcon kingBlack = new ImageIcon(System.getProperty("user.dir") + "/build/classes/images/B_King.png");
     public ImageIcon kingWhite = new ImageIcon(System.getProperty("user.dir") + "/build/classes/images/W_King.png");
+    public JLabel message = new JLabel();
     public Container c;
     public boolean boolMoveSelection = false;
     public Point pntMoveFrom, pntMoveTo;
@@ -75,7 +74,6 @@ public class Player extends JFrame implements Runnable {
         s = new StopWatch();
         mV = new MoveValidator();
         board = new ChessBoard();
-        in = new Scanner(System.in);
         gameOver = false;
         v = new View();
         name = nm;
@@ -83,15 +81,18 @@ public class Player extends JFrame implements Runnable {
         pnlBoard.repaint();
 
         c = getContentPane();
-        setBounds(0, 0, 460, 460);
+        setBounds(0, 0, 470, 530);
         setBackground(new Color(204, 204, 204));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setTitle("Chess");
         setResizable(false);
         c.setLayout(null);
-        pnlText.setBackground(Color.WHITE);
-        pnlMain.setBounds(2, 2, 460, 860);
+        //pnlText.setBackground(Color.WHITE);
+        pnlText.setMaximumSize(new Dimension(465, 45));
+        pnlMain.setBounds(0, 0, 465, 525);
         pnlMain.setBackground(new Color(255, 255, 255));
+        pnlMain.setLayout(new BoxLayout(pnlMain, BoxLayout.Y_AXIS));
+        pnlBoard.setMaximumSize(new Dimension(460, 460));
         c.add(pnlMain);
 
     }
@@ -104,7 +105,6 @@ public class Player extends JFrame implements Runnable {
 
     public void establishConnection() {
         try {
-            //clientSocket = new Socket("localhost", 8081);
             objectOut = new ObjectOutputStream(clientSocket.getOutputStream());
             System.out.println(name + ": outputStream created");
         } catch (IOException ex) {
@@ -117,23 +117,42 @@ public class Player extends JFrame implements Runnable {
         try {
             objectIn = new ObjectInputStream(clientSocket.getInputStream());
             System.out.println(name + ": input stream created.");
-            String dColor = JOptionPane.showInputDialog(null, name + ": Please enter your desired color", "");
-            System.out.println(name + ": Please enter your desired color");
-            System.out.println("Entered " + dColor);
-            if (dColor.equalsIgnoreCase("white")) {
-                this.drawBoard();
+            Panel p = new Panel();
+            DefaultComboBoxModel model = new DefaultComboBoxModel();
+            model.addElement("White");
+            model.addElement("Black");
+            JComboBox comboBox = new JComboBox(model);
+            p.add(comboBox);
+
+            String dColor = "";
+            while (dColor.equals("")){
+                int result = JOptionPane.showConfirmDialog(null, p, "Please choose your color", JOptionPane.OK_OPTION, JOptionPane.DEFAULT_OPTION);
+                switch (result) {
+                    case JOptionPane.OK_OPTION:
+                        dColor = (String) comboBox.getSelectedItem();
+                        break;
+                }
+            }
+
+            this.drawBoard();
+            //String dColor = JOptionPane.showInputDialog(null, name + ": Please enter your desired color", "");
+            //System.out.println(name + ": Please enter your desired color");
+            //System.out.println("Entered " + dColor);
+            //JOptionPane.showMessageDialog(null, dColor);
+            PlayerMove info = new PlayerMove(name, dColor);
+            objectOut.writeObject(info); //send desired color and name to server
+            Update u = (Update) objectIn.readObject(); //should be oppenent name and assigned player color
+
+            if (u.team.equals("WHITE")) {
                 v.printBoard(board.board);
                 this.arrangePieces();
                 show();
             } else {
-                this.drawBoard();
                 v.printBoard(board.blackboard);
                 this.arrangePieces();
                 show();
             }
-            PlayerMove info = new PlayerMove(name, dColor);
-            objectOut.writeObject(info); //send desired color and name to server
-            Update u = (Update) objectIn.readObject(); //should be oppenent name and assigned player color
+            
             team = u.team;
 
             opp = u.opp;
@@ -195,7 +214,7 @@ public class Player extends JFrame implements Runnable {
                             } else {
                                 s.resume();
                             }
-                            System.out.println(team + " (" + name + ")" + ": My Turn");
+                            message.setText(team + " (" + name + ")" + ": My Turn" + "   Time taken so far: " + convertTime(s.getTime()));
                             System.out.println("Time taken so far: " + convertTime(s.getTime()));
 
                             if (team == COLOR.WHITE) {
@@ -228,7 +247,7 @@ public class Player extends JFrame implements Runnable {
 
     public PlayerMove turn() throws IOException {
 
-        System.out.print(team + " (" + name + ") " + " TURN");
+    	message.setText(team + " (" + name + ") " + " TURN");
         //System.out.println(" Enter source position X,Y: ");
         //String source = JOptionPane.showInputDialog(null, "Enter source position X,Y:", "");
         //source = input.readLine();
@@ -318,8 +337,10 @@ public class Player extends JFrame implements Runnable {
                 }
             }
         }
-        pnlMain.add(pnlBoard);
+        
+        pnlText.add(message, BorderLayout.WEST);
         pnlMain.add(pnlText);
+        pnlMain.add(pnlBoard);
     }
 
     public void arrangePieces() {
@@ -336,6 +357,7 @@ public class Player extends JFrame implements Runnable {
             for (int j = 0; j < 8; j++) {
                 final int tempi = i;
                 final int tempj = j;
+                pnlCells[i][j].repaint();
                 pnlCells[i][j].add(getPieceObject(str[(7 - i)][j]), BorderLayout.CENTER);
                 pnlCells[i][j].validate();
                 if (pnlCells[i][j].getActionListeners().length < 1) {
@@ -346,7 +368,6 @@ public class Player extends JFrame implements Runnable {
     }
 
     ActionListener ml = new ActionListener() {
-        @Override
         public void actionPerformed(ActionEvent e) {
 
             try {
@@ -377,7 +398,7 @@ public class Player extends JFrame implements Runnable {
                         source.setBackground(Color.red);
                         mouseX = tempj;
                         mouseY = 7 - tempi;
-                        System.out.println("First You pressed" + mouseX + ", " + mouseY);
+                        //System.out.println("First You pressed" + mouseX + ", " + mouseY);
                         firstClick = true;
                     } else if (secondClick == false) {
                         colorHolder.setBackground(sourceColor);
@@ -385,7 +406,7 @@ public class Player extends JFrame implements Runnable {
                         source.setBackground(Color.blue);
                         newMouseX = tempj;
                         newMouseY = 7 - tempi;
-                        System.out.println("Second You pressed" + newMouseX + ", " + newMouseY);
+                        //System.out.println("Second You pressed" + newMouseX + ", " + newMouseY);
                         secondClick = true;
                     }
 
