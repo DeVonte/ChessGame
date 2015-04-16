@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 /**
  * This class starts up the server and creates the game
+ * 
+ * @date 4/16/2015
  */
 public class Server implements Runnable {
 
@@ -51,15 +53,16 @@ public class Server implements Runnable {
         System.out.println("Server Stopped.");
     }
 
-    /*
-     This code checks to see if the program has stopped
+    /**
+     * This code checks to see if the program has stopped
+     * @return if the program is stopped 
      */
     private synchronized boolean isStopped() {
         return this.isStopped;
     }
 
-    /*
-     Close the port and stop the server
+    /**
+     * Close the port and stop the server
      */
     public synchronized void stop() {
         this.isStopped = true;
@@ -70,8 +73,8 @@ public class Server implements Runnable {
         }
     }
 
-    /*
-     This method opens the server port
+    /**
+     * This method opens the server port
      */
     private void openServerSocket() {
         try {
@@ -82,10 +85,18 @@ public class Server implements Runnable {
         System.out.println("SERVER: Socket opened on " + serverPort);
     }
 
+    /**
+     * This method runs the server
+     * @param args
+     * @throws IOException 
+     */
     public static void main(String args[]) throws IOException {
         new Server(8080).run();
     }
 
+    /**
+     * This class implements the user threads
+     */
     private class UserThread extends Thread {
 
         ObjectInputStream objectIn;
@@ -93,6 +104,11 @@ public class Server implements Runnable {
         private String name;
         Socket socket;
 
+        /**
+         * Constructor to create UserThread
+         * @param newsock Socket to put user thread on
+         * @throws IOException 
+         */
         public UserThread(Socket newsock) throws IOException {
             socket = newsock;
             objectOut = new ObjectOutputStream(newsock.getOutputStream());
@@ -100,46 +116,49 @@ public class Server implements Runnable {
             name = "";
         }
 
-        /*
-        This method gets and returns the user name
-        @return name to return
+        /**
+        * This method gets and returns the user name
+        * @return name to return
         */
         public synchronized String getUserName() {
             return name;
         }
 
-        /*
-        This method sets the user name
-        @user Name to set
+        /**
+        * This method sets the user name
+        * @user Name to set
         */
         public synchronized void setUserName(String user) {
             name = user;
         }
 
-        /*
-        This method gets the object input stream
-        @return object input stream
+        /**
+        * This method gets the object input stream
+        * @return object input stream
         */
         public synchronized ObjectInputStream getObjectInputStream() {
             return this.objectIn;
         }
 
-        /*
-        This method gets the object output stream
-        @return object output stream
+        /**
+        * This method gets the object output stream
+        * @return object output stream
         */
         public synchronized ObjectOutputStream getObjectOutputStream() {
             return this.objectOut;
         }
 
-        /*
-        This method gets the socket
-        @return The socket
+        /**
+        * This method gets the socket
+        * @return The socket
         */
         public synchronized Socket getSocket() {
             return this.socket;
         }
 
+        /**
+         * This class runs the server
+         */
         public void run() {
             boolean alive = true;
             while (alive) {
@@ -261,11 +280,11 @@ public class Server implements Runnable {
         }
     }
 
-    /*
-     This method creates the game based on the two users that have accepted.
-     @param temp_sock Socket to start game on
-     @param p1 First player
-     @param p2 Second player
+    /**
+     * This method creates the game based on the two users that have accepted.
+     * @param temp_sock Socket to start game on
+     * @param p1 First player
+     * @param p2 Second player
      */
     public synchronized void createGame(ServerSocket temp_sock, String p1, String p2) {
         UserThread player1 = null, player2 = null;
@@ -285,7 +304,7 @@ public class Server implements Runnable {
                 Socket p2_new = temp_sock.accept();
 
                 System.out.println("I got here");
-                new Thread(new ChessGame(p1_new, p2_new, gamecount)).start();
+                new Thread(new ServerHelper(p1_new, p2_new, gamecount)).start();
                 gamecount++;
 
                 for (int i = (users.size() - 1); i > -1; --i) {
@@ -351,9 +370,10 @@ public class Server implements Runnable {
         }
     }
 
-    /*
-     This method validates the new user
-     @param name User to validate
+    /**
+     * This method validates the new user
+     * @param name User to validate
+     * @return Boolean if user is validated
      */
     public synchronized boolean validateNewUser(String name) {
         boolean valid = true;

@@ -1,30 +1,34 @@
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package multiplayerchess;
 
-import java.awt.*;
 import java.io.Serializable;
 import javax.swing.*;
-import multiplayerchess.Piece.COLOR;
-import multiplayerchess.Piece.TYPE;
+import multiplayerchess.ChessPiece.COLOR;
+import multiplayerchess.ChessPiece.TYPE;
 
+/**
+ * This class implements the ChessBoard
+ * @date 4/16/2015
+ */
 public class ChessBoard extends JFrame implements Serializable {
 
-    public Piece[][] board = new Piece[8][8];
-    public Piece[][] blackboard = new Piece[8][8];
+    public ChessPiece[][] board = new ChessPiece[8][8];
+    public ChessPiece[][] blackboard = new ChessPiece[8][8];
     public COLOR gamestate;
-    View v;
+    View newV;
 
+    /**
+     * Constructor that creates new chess board
+     */
     public ChessBoard() {
         initializeWhiteBoard();
         initializeBlackBoard();
-        v = new View();
+        newV = new View();
     }
 
+    /**
+     * This method creates the board for the person that chooses white
+     */
     public void initializeWhiteBoard() {
         for (int i = 0; i < 8; i++) {
             addPiece(COLOR.BLACK, TYPE.PAWN, 6, i);
@@ -49,36 +53,37 @@ public class ChessBoard extends JFrame implements Serializable {
         addPiece(COLOR.WHITE, TYPE.BISHOP, 0, 5);
         addPiece(COLOR.WHITE, TYPE.KNIGHT, 0, 6);
         addPiece(COLOR.WHITE, TYPE.ROOK, 0, 7);
-
-        /*   
-         addPiece(COLOR.WHITE, TYPE.PAWN,0,6);
-         addPiece(COLOR.BLACK, TYPE.PAWN,1,1);
-       
-         addPiece(COLOR.WHITE, TYPE.PAWN,1,1);
-         addPiece(COLOR.BLACK, TYPE.QUEEN,1,6);
-         */
+        
         this.gamestate = COLOR.WHITE;
     }
 
+    /**
+     * This method adds a piece to the white board
+     * @param color Color of piece
+     * @param type Type of piece
+     * @param row Row of piece
+     * @param col  Column of piece
+     */
     public void addPiece(COLOR color, TYPE type, int row, int col) {
-        board[col][row] = new Piece(color, type, row, col);
+        board[col][row] = new ChessPiece(color, type, row, col);
     }
 
+    /**
+     * This method adds a piece to the black board
+     * @param color Color of piece
+     * @param type Type of piece
+     * @param row Row of piece
+     * @param col Column of piece
+     */
     public void addOtherPiece(COLOR color, TYPE type, int row, int col) {
-        blackboard[col][row] = new Piece(color, type, row, col);
+        blackboard[col][row] = new ChessPiece(color, type, row, col);
     }
 
-    public void changeState() {
-        switch (gamestate) {
-            case WHITE:
-                gamestate = COLOR.BLACK;
-                break;
-            case BLACK:
-                gamestate = COLOR.WHITE;
-                break;
-        }
-    }
+    
 
+    /**
+     * This method creates the board for the person that chooses black
+     */
     private void initializeBlackBoard() {
         for (int i = 0; i < 8; i++) {
             addOtherPiece(COLOR.WHITE, TYPE.PAWN, 6, i);
@@ -104,5 +109,19 @@ public class ChessBoard extends JFrame implements Serializable {
         addOtherPiece(COLOR.BLACK, TYPE.KNIGHT, 0, 6);
         addOtherPiece(COLOR.BLACK, TYPE.ROOK, 0, 7);
 
+    }
+    
+    /**
+     * This method changes the state of the board
+     */
+    public void changeGameState() {
+        switch (gamestate) {
+            case WHITE:
+                gamestate = COLOR.BLACK;
+                break;
+            case BLACK:
+                gamestate = COLOR.WHITE;
+                break;
+        }
     }
 }

@@ -13,6 +13,11 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+/**
+ * This class implements the main room where all users connect and chat
+ *
+ * @date 4/16/2015
+ */
 @SuppressWarnings("serial")
 public class MainRoom extends JFrame implements ActionListener {
 
@@ -27,6 +32,9 @@ public class MainRoom extends JFrame implements ActionListener {
     private static JList<String> list;
     private static MainRoom frame;
 
+    /**
+     * Constructor that creates new Main Room
+     */
     public MainRoom() {
         setSize(new Dimension(780, 525));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -36,11 +44,19 @@ public class MainRoom extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Main method that starts up main room with the frame
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         frame = new MainRoom();
         frame.setVisible(true);
     }
 
+    /**
+     * This method sets up the screen for the main room
+     */
     public void setScreen() {
         getContentPane().removeAll();
 
@@ -193,19 +209,41 @@ public class MainRoom extends JFrame implements ActionListener {
         }
     }
 
+    /**
+     * This method adds the users message to the chat
+     *
+     * @param name Name of user
+     * @param message Message
+     */
     public static void addMessage(String name, String message) {
         messages.addElement((name + " >>> " + message));
     }
 
+    /**
+     * This method adds a user to the chat room
+     *
+     * @param user User to add
+     */
     public static void addUser(String user) {
         users.addElement(user);
     }
 
+    /**
+     * This method removes the user from the chat room
+     *
+     * @param user User to remove
+     */
     public static void removeUser(String user) {
         int pos = users.indexOf(user);
         users.removeElementAt(pos);
     }
 
+    /**
+     * This method handles the challenge that the user receives
+     *
+     * @param user User that sends challenge
+     * @throws IOException
+     */
     public static void receivedChallenge(String user) throws IOException {
         String msg = user + " has challenged you to a game.  Do you accept?";
         int res = JOptionPane.showConfirmDialog(null, msg, "Challenge", JOptionPane.YES_NO_OPTION);
@@ -219,27 +257,39 @@ public class MainRoom extends JFrame implements ActionListener {
         }
     }
 
+    /**
+     * This method starts the chess game on the client side
+     *
+     * @param port Port to connect with
+     * @throws IOException
+     */
     public static void startGame(int port) throws IOException {
         Socket s = new Socket(socket.getInetAddress().getHostAddress(), port);
-        Player p1 = new Player(username, s);
+        Client p1 = new Client(username, s);
         new Thread(p1).start();
         frame.dispose();
     }
 
+    /**
+     * This method handles the response that the user sends from the challenge
+     *
+     * @param user User that responses
+     * @param result The response
+     * @throws UnknownHostException
+     */
     public static void showRequestResponse(String user, String result) throws UnknownHostException {
         if (result.equals("REJECTED")) {
             String msg = user + " has rejected your challenge";
             JOptionPane.showMessageDialog(null, msg);
         }
-        /*else{
-         Player p1 = new Player(username, socket);
-         new Thread(p1).start();
-         frame.dispose();
-         }*/
     }
 
+    /**
+     * This method listens to what the user is doing in the chat room
+     *
+     * @param act Event to listen to
+     */
     public void actionPerformed(ActionEvent act) {
-        // TODO Auto-generated method stub
         JButton b = (JButton) act.getSource();
         try {
             if (b.getText().equals("Send")) {

@@ -2,10 +2,12 @@
 package multiplayerchess;
 
 import java.io.Serializable;
-import multiplayerchess.Piece.*;
+import multiplayerchess.ChessPiece.*;
 
 /**
  * This class implements the messages that the clients sends over to the server
+ * 
+ * @date 4/16/2015
  */
 public class PlayerMove implements Serializable {
 
@@ -13,13 +15,20 @@ public class PlayerMove implements Serializable {
     COLOR playerColor;
     TYPE type;
     int sourceX, sourceY, targetX, targetY;
-    String name, dColor, message;
+    String name;
+    String pieceColor;
+    String message;
     char flag;
     boolean changePiece;
     
-    /*
-    Player Move that uses color and all coordinates
-    */
+    /**
+     * Constructor that creates playermove with color and coordinates
+     * @param pC Color of piece
+     * @param sX Source X coords
+     * @param sY Source Y coords
+     * @param tX Target X coords
+     * @param tY Target Y coords
+     */
     public PlayerMove(COLOR pC, int sX, int sY, int tX, int tY) {
         this.playerColor = pC;
         this.sourceX = sX;
@@ -29,47 +38,59 @@ public class PlayerMove implements Serializable {
         this.changePiece = false;
     }
 
-    /*
-    Player Move that uses name and color
-    */
-    public PlayerMove(String name, String dColor) {
+    /**
+     * Constructor that creates player move with name and color
+     * @param name Name of player
+     * @param theColor Color of piece
+     */
+    public PlayerMove(String name, String theColor) {
         this.name = name;
-        this.dColor = dColor;
+        this.pieceColor = theColor;
         this.changePiece = false;
     }
 
-    /*
-    Player Move that uses coordinates, type, and color
-    */
-    public PlayerMove(int x, int y, TYPE type, COLOR c) {
+    /**
+     * Constructor that creates player move with source coords, type, and color
+     * @param x Source x coordinates
+     * @param y Source y coordinates
+     * @param type Type of piece
+     * @param col Color of piece
+     */
+    public PlayerMove(int x, int y, TYPE type, COLOR col) {
         this.sourceX = x;
         this.sourceY = y;
         this.type = type;
         this.changePiece = true;
-        this.playerColor = c;
+        this.playerColor = col;
     }
     
-    /*
-    Player Move that uses type
-    */
+    /**
+     * Constructor that creates player move with type
+     * @param type Type of piece
+     */
     public PlayerMove(TYPE type) {
         this.type = type;
     }
 
-    /*
-    Player Move that uses flag and the name of player
-    */
+    /**
+     * Constructor that creates player move with flag and name of player
+     * @param f Flag for move
+     * @param name Name of player
+     */
     public PlayerMove(char f, String name) {
         this.flag = f;
         this.name = name;
     }
 
-    /*
-    Player move that uses flag, name of player, and message
-    */
-    public PlayerMove(char f, String name, String message) {
+    /**
+     * Constructor that creates player move with flag, name of player, and message
+     * @param f Flag for move
+     * @param name Name of player
+     * @param msg Message for move
+     */
+    public PlayerMove(char f, String name, String msg) {
         this.flag = f;
         this.name = name;
-        this.message = message;
+        this.message = msg;
     }
 }

@@ -7,26 +7,31 @@ package multiplayerchess;
 
 import java.io.Serializable;
 
-/*
- This class implements the regular board for the output window
+/**
+ * This class implements the regular board for the output window
+ * 
+ * @date 4/16/2015
  */
 public class View implements Serializable {
 
     public static String[][] str = new String[8][8];
 
+    /**
+     * Constructor that creates new view object
+     */
     public View() {
 
     }
 
-    /*
-     This method prints the board to the output window
-     @param board The board to print
+    /**
+     * This method prints the board to the output window
+     * @param board The board to print
      */
-    public void printBoard(Piece[][] board) {
+    public void printBoard(ChessPiece[][] board) {
         for (int i = 7; i >= 0; i--) {
             for (int j = 0; j < 8; j++) {
                 String s = "";
-                Piece p;
+                ChessPiece p;
                 if (board[j][i] == null) {
                     s = "-";
                 } else {

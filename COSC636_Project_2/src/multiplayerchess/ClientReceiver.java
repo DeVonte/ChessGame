@@ -1,20 +1,33 @@
 package multiplayerchess;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 
+/**
+ * This class manages the main room for the clients
+ *
+ * @date 4/16/2015
+ */
 public class ClientReceiver implements Runnable {
 
     private Socket socket;
     private ObjectInputStream receive;
 
+    /**
+     * Constructor that creates client receiver with socket and input stream
+     *
+     * @param s Socket
+     * @param in InputStream
+     */
     public ClientReceiver(Socket s, ObjectInputStream in) {
         socket = s;
         receive = in;
     }
 
+    /**
+     * This method runs the management for the main room.
+     */
     public void run() {
         // TODO Auto-generated method stub
         try {
@@ -44,10 +57,8 @@ public class ClientReceiver implements Runnable {
                     default:
                         break;
                 }
-//				System.out.println("From Server: " + msgRecieved);
-//				System.out.println("Please enter something to send to server..");
             }
-        } catch (Exception e) {
+        } catch (IOException | ClassNotFoundException | NumberFormatException e) {
             System.out.println(e.getMessage());
         }
 
