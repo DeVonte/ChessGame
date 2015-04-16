@@ -7,6 +7,9 @@ package multiplayerchess;
 
 import java.io.Serializable;
 
+/*
+ This class implements the regular board for the output window
+ */
 public class View implements Serializable {
 
     public static String[][] str = new String[8][8];
@@ -15,6 +18,10 @@ public class View implements Serializable {
 
     }
 
+    /*
+     This method prints the board to the output window
+     @param board The board to print
+     */
     public void printBoard(Piece[][] board) {
         for (int i = 7; i >= 0; i--) {
             for (int j = 0; j < 8; j++) {

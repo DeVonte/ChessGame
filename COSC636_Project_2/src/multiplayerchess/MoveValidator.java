@@ -312,12 +312,20 @@ public class MoveValidator implements Serializable {
             case KING:
                 if(tX==sX && tY==sY+1) //up
                     valid = true;
-                if(tX==sX && tY==sY-1) //down
+                else if(tX==sX && tY==sY-1) //down
                     valid = true;
-                if(tY==sY && tX==sX+1) //right
+                else if(tY==sY && tX==sX+1) //right
                     valid = true;
-                if(tY==sY && tX==sX-1) //left
+                else if(tY==sY && tX==sX-1) //left
                     valid = true;
+                else if(tX==(sX-1) && tY==(sY+1))//if up 1 and left 1
+                    valid= true;
+                else if(tX==(sX+1) && tY==(sY+1)) //up 1 right 1
+                    valid= true;
+                else if(tX==(sX-1) && tY==(sY-1)) //down 1 left 1
+                    valid= true;
+                else if(tX==(sX+1) && tY==(sY-1)) //down 1 right 1
+                    valid= true;              
                 break;    
         }
         if(valid)

@@ -22,6 +22,9 @@ import static multiplayerchess.View.str;
 
 import org.apache.commons.lang3.time.*;
 
+/*
+ This class implements the Clients
+ */
 public class Player extends JFrame implements Runnable {
 
     ChessBoard board;
@@ -48,7 +51,7 @@ public class Player extends JFrame implements Runnable {
     public JButton colorHolder = null;
     public int l = 0;
 
-    public JButton[][] pnlCells = new JButton[8][8];
+    public JButton[][] chessCells = new JButton[8][8];
     public JPanel pnlBoard = new JPanel(new GridLayout(8, 8));
     public JPanel pnlText = new JPanel(new BorderLayout());
     public JPanel pnlMain = new JPanel();
@@ -87,7 +90,6 @@ public class Player extends JFrame implements Runnable {
         setTitle("Chess");
         setResizable(false);
         c.setLayout(null);
-        //pnlText.setBackground(Color.WHITE);
         pnlText.setMaximumSize(new Dimension(465, 45));
         pnlMain.setBounds(0, 0, 465, 525);
         pnlMain.setBackground(new Color(255, 255, 255));
@@ -97,12 +99,18 @@ public class Player extends JFrame implements Runnable {
 
     }
 
+    /*
+     This method runs the initial connections, name/color initialization, and starts the players game
+     */
     public void run() {
         establishConnection();
         nameAndColor();
         startPlaying();
     }
 
+    /*
+     This method establishes a connection with the server
+     */
     public void establishConnection() {
         try {
             objectOut = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -113,20 +121,23 @@ public class Player extends JFrame implements Runnable {
         }
     }
 
+    /*
+     This method allows a player to insert their name and pick a color from a dropdown list
+     */
     public void nameAndColor() {
         try {
             objectIn = new ObjectInputStream(clientSocket.getInputStream());
             System.out.println(name + ": input stream created.");
-            Panel p = new Panel();
+            Panel pan = new Panel();
             DefaultComboBoxModel model = new DefaultComboBoxModel();
             model.addElement("White");
             model.addElement("Black");
             JComboBox comboBox = new JComboBox(model);
-            p.add(comboBox);
+            pan.add(comboBox);
 
             String dColor = "";
-            while (dColor.equals("")){
-                int result = JOptionPane.showConfirmDialog(null, p, "Please choose your color", JOptionPane.OK_OPTION, JOptionPane.DEFAULT_OPTION);
+            while (dColor.equals("")) {
+                int result = JOptionPane.showConfirmDialog(null, pan, "Please choose your color", JOptionPane.OK_OPTION, JOptionPane.DEFAULT_OPTION);
                 switch (result) {
                     case JOptionPane.OK_OPTION:
                         dColor = (String) comboBox.getSelectedItem();
@@ -135,10 +146,6 @@ public class Player extends JFrame implements Runnable {
             }
 
             this.drawBoard();
-            //String dColor = JOptionPane.showInputDialog(null, name + ": Please enter your desired color", "");
-            //System.out.println(name + ": Please enter your desired color");
-            //System.out.println("Entered " + dColor);
-            //JOptionPane.showMessageDialog(null, dColor);
             PlayerMove info = new PlayerMove(name, dColor);
             objectOut.writeObject(info); //send desired color and name to server
             Update u = (Update) objectIn.readObject(); //should be oppenent name and assigned player color
@@ -152,7 +159,7 @@ public class Player extends JFrame implements Runnable {
                 this.arrangePieces();
                 show();
             }
-            
+
             team = u.team;
 
             opp = u.opp;
@@ -164,6 +171,9 @@ public class Player extends JFrame implements Runnable {
         }
     }
 
+    /*
+     This method allows the player to start playing chess.
+     */
     public void startPlaying() {
 
         try {
@@ -201,11 +211,11 @@ public class Player extends JFrame implements Runnable {
                             }
                             if (team == COLOR.WHITE) {
                                 str = convertBoard(board.board);/////reset strings
-                                arrangePieces();//pring board
+                                arrangePieces();//printing board
 
                             } else {
                                 str = convertBoard(board.blackboard);/////reset strings
-                                arrangePieces();//pring board
+                                arrangePieces();//printing board
                             }
                         }
                         if (u.turn == team) {
@@ -220,18 +230,12 @@ public class Player extends JFrame implements Runnable {
                             if (team == COLOR.WHITE) {
                                 v.printBoard(board.board);
                                 str = convertBoard(board.board);/////reset strings
-                                arrangePieces();//pring board
+                                arrangePieces();//printing board
                             } else {
                                 v.printBoard(board.blackboard);
                                 str = convertBoard(board.blackboard);/////reset strings
-                                arrangePieces();//pring board
+                                arrangePieces();//printing board
                             }
-
-                            //PlayerMove pM = turn(); //send turn to server
-                            //objectOut.writeObject(pM); //send turn to server
-                            //System.out.println(name + ": sent move to server");
-                            //s.suspend();
-                        } else {
 
                         }
 
@@ -245,20 +249,14 @@ public class Player extends JFrame implements Runnable {
         }
     }
 
+    /*
+     This method returns the players move
+     @return PlayerMove object to return
+     */
     public PlayerMove turn() throws IOException {
 
-    	message.setText(team + " (" + name + ") " + " TURN");
-        //System.out.println(" Enter source position X,Y: ");
-        //String source = JOptionPane.showInputDialog(null, "Enter source position X,Y:", "");
-        //source = input.readLine();
-        //System.out.println("source: " +source);
-        //int sourceX = Integer.parseInt("" + source.charAt(0));
-        //int sourceY = Integer.parseInt("" + source.charAt(2));
-        //System.out.print(team + " TURN ");
-        //System.out.println("Enter target position X,Y: ");
-        //String target = JOptionPane.showInputDialog(null, "Enter target position X,Y:", "");
-        //int targetX = Integer.parseInt("" + target.charAt(0));
-        //int targetY = Integer.parseInt("" + target.charAt(2));
+        message.setText(team + " (" + name + ") " + " TURN");
+
         if (team == COLOR.BLACK) {
             mouseX = 7 - mouseX;
             mouseY = 7 - mouseY;
@@ -268,50 +266,78 @@ public class Player extends JFrame implements Runnable {
         return new PlayerMove(team, mouseX, mouseY, newMouseX, newMouseY);
     }
 
+    /*
+     This method converts the time to minutes and seconds
+     @param time Current time
+     @return The time in the timeformat of a string
+     */
     public String convertTime(long time) {
         Date date = new Date(time);
-        Format format = new SimpleDateFormat("mm:ss");
-        return format.format(date).toString();
+        Format timeformat = new SimpleDateFormat("mm:ss");
+        return timeformat.format(date);
     }
 
-    public ChessBoard doMove(PlayerMove pM, ChessBoard b) throws IOException {
+    /*
+     This method performs the move for the player
+     @param pM The playermove object that the person has made
+     @param cb The board that needs to be changed
+     @return The updated board object
+     */
+    public ChessBoard doMove(PlayerMove pM, ChessBoard cb) throws IOException {
 
         if (team == COLOR.WHITE) {
             int tempSourceX = pM.sourceX;
             int tempSourceY = pM.sourceY;
             int tempTargetX = pM.targetX;
             int tempTargetY = pM.targetY;
-            Piece piece = b.board[tempSourceX][tempSourceY]; //get piece
-            b.board[tempTargetX][tempTargetY] = piece; //move the piece
-            b.board[tempSourceX][tempSourceY] = null;// set original space to null
+            Piece piece = cb.board[tempSourceX][tempSourceY]; //get piece
+            cb.board[tempTargetX][tempTargetY] = piece; //move the piece
+            cb.board[tempSourceX][tempSourceY] = null;// set original space to null
         } else {
             int tempSourceX = 7 - pM.sourceX;
             int tempSourceY = 7 - pM.sourceY;
             int tempTargetX = 7 - pM.targetX;
             int tempTargetY = 7 - pM.targetY;
-            Piece piece = b.blackboard[tempSourceX][tempSourceY]; //get piece
-            b.blackboard[tempTargetX][tempTargetY] = piece; //move the piece
-            b.blackboard[tempSourceX][tempSourceY] = null;// set original space to null
+            Piece piece = cb.blackboard[tempSourceX][tempSourceY]; //get piece
+            cb.blackboard[tempTargetX][tempTargetY] = piece; //move the piece
+            cb.blackboard[tempSourceX][tempSourceY] = null;// set original space to null
         }
 
-        return b;
+        return cb;
     }
 
+    /*
+     This method changes the piece if the opponent makes it to the other side.
+     @return Piece type
+     */
     public Piece.TYPE changePiece() throws IOException {
-        System.out.println("You made it to the other side! Which piece would like you to replace it with?");
-        System.out.println("1: Rook");
-        System.out.println("2: Knight");
-        System.out.println("3: Bishop");
-        System.out.println("4: Queen");
-        int choice = Integer.parseInt(input.readLine());
-        switch (choice) {
-            case 1:
+        Panel pan = new Panel();
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
+        model.addElement("Rook");
+        model.addElement("Knight");
+        model.addElement("Bishop");
+        model.addElement("Queen");
+        JComboBox comboBox = new JComboBox(model);
+        pan.add(comboBox);
+
+        String piece = "";
+        while (piece.equals("")) {
+            int result = JOptionPane.showConfirmDialog(null, pan, "You made it to the other side! Which piece would like you to replace it with?", JOptionPane.OK_OPTION, JOptionPane.DEFAULT_OPTION);
+            switch (result) {
+                case JOptionPane.OK_OPTION:
+                    piece = (String) comboBox.getSelectedItem();
+                    break;
+            }
+        }
+
+        switch (piece) {
+            case "Rook":
                 return Piece.TYPE.ROOK;
-            case 2:
+            case "Knight":
                 return Piece.TYPE.KNIGHT;
-            case 3:
+            case "Bishop":
                 return Piece.TYPE.BISHOP;
-            case 4:
+            case "Queen":
                 return Piece.TYPE.QUEEN;
             default:
                 return Piece.TYPE.PAWN;
@@ -319,59 +345,65 @@ public class Player extends JFrame implements Runnable {
 
     }
 
+    /**
+     * This method draws the GUI
+     */
     public void drawBoard() {
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
-                pnlCells[y][x] = new JButton();
-                pnlBoard.add(pnlCells[y][x], new BorderLayout());
+                chessCells[y][x] = new JButton();
+                pnlBoard.add(chessCells[y][x], new BorderLayout());
                 if (y % 2 == 0) {
                     if (x % 2 != 0) {
-                        pnlCells[y][x].setBackground(Color.DARK_GRAY);
+                        chessCells[y][x].setBackground(Color.DARK_GRAY);
                     } else {
-                        pnlCells[y][x].setBackground(Color.WHITE);
+                        chessCells[y][x].setBackground(Color.WHITE);
                     }
                 } else if (x % 2 == 0) {
-                    pnlCells[y][x].setBackground(Color.DARK_GRAY);
+                    chessCells[y][x].setBackground(Color.DARK_GRAY);
                 } else {
-                    pnlCells[y][x].setBackground(Color.WHITE);
+                    chessCells[y][x].setBackground(Color.WHITE);
                 }
             }
         }
-        
+
         pnlText.add(message, BorderLayout.WEST);
         pnlMain.add(pnlText);
         pnlMain.add(pnlBoard);
     }
 
+    /*
+     This method changes the pieces on the gui once the player makes a move
+     */
     public void arrangePieces() {
         for (int i = 7; i >= 0; i--) {
             for (int j = 0; j < 8; j++) {
 
-                pnlCells[i][j].removeAll(); //remove all pieces so piece doesnt stay in same place
+                chessCells[i][j].removeAll(); //remove all pieces so piece doesnt stay in same place
 
-                //System.out.println(j+", "+(i)+":"+v.str[(7-i)][j]);
             }
         }
 
         for (int i = 7; i >= 0; i--) {
             for (int j = 0; j < 8; j++) {
-                final int tempi = i;
-                final int tempj = j;
-                pnlCells[i][j].repaint();
-                pnlCells[i][j].add(getPieceObject(str[(7 - i)][j]), BorderLayout.CENTER);
-                pnlCells[i][j].validate();
-                if (pnlCells[i][j].getActionListeners().length < 1) {
-                    pnlCells[i][j].addActionListener(ml); //add action listener so we can check if user presses button
+                chessCells[i][j].repaint();
+                chessCells[i][j].add(getPieceObject(str[(7 - i)][j]), BorderLayout.CENTER);
+                chessCells[i][j].validate();
+                if (chessCells[i][j].getActionListeners().length < 1) {
+                    chessCells[i][j].addActionListener(ml); //add action listener so we can check if user presses button
                 }
             }
         }
     }
 
+    /*
+     This method adds an actionListener to the chessboard
+     @param e Event to listen for
+     */
     ActionListener ml = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
 
             try {
-                System.out.println("Count of listeners: " + ((JButton) e.getSource()).getActionListeners().length);
                 if (firstClick == false || secondClick == false) {
                     JButton source = null;
                     if (e.getSource() instanceof JButton) {
@@ -382,9 +414,9 @@ public class Player extends JFrame implements Runnable {
                     int tempi = 0;
                     int tempj = 0;
 
-                    for (int i = 0; i < pnlCells.length; i++) {
-                        for (int j = 0; j < pnlCells[i].length; j++) {
-                            if (pnlCells[i][j] == source) {
+                    for (int i = 0; i < chessCells.length; i++) {
+                        for (int j = 0; j < chessCells[i].length; j++) {
+                            if (chessCells[i][j] == source) {
                                 tempi = i;
                                 tempj = j;
                                 break;
@@ -398,7 +430,6 @@ public class Player extends JFrame implements Runnable {
                         source.setBackground(Color.red);
                         mouseX = tempj;
                         mouseY = 7 - tempi;
-                        //System.out.println("First You pressed" + mouseX + ", " + mouseY);
                         firstClick = true;
                     } else if (secondClick == false) {
                         colorHolder.setBackground(sourceColor);
@@ -406,12 +437,10 @@ public class Player extends JFrame implements Runnable {
                         source.setBackground(Color.blue);
                         newMouseX = tempj;
                         newMouseY = 7 - tempi;
-                        //System.out.println("Second You pressed" + newMouseX + ", " + newMouseY);
                         secondClick = true;
                     }
 
                     if (firstClick == true && secondClick == true) {
-                        //Thread.sleep(500);
                         source.setBackground(sourceColor1);
                         firstClick = false;
                         secondClick = false;
@@ -430,6 +459,11 @@ public class Player extends JFrame implements Runnable {
 
     };
 
+    /*
+     This method turns the string into a JLabel object
+     @param strPieceName piece to turn into object
+     @return JLabel object with specific piece
+     */
     public JLabel getPieceObject(String strPieceName) {
         JLabel lblTemp;
         if (strPieceName.equals("bR")) {
@@ -462,48 +496,52 @@ public class Player extends JFrame implements Runnable {
         return lblTemp;
     }
 
-    public String[][] convertBoard(Piece[][] board) {
+    /*
+     This method adds all the strings to the regular chessboard
+     @chessboard Board to convert to strings
+     @return Return 2d array of strings for the chess chessboard
+     */
+    public String[][] convertBoard(Piece[][] chessboard) {
         for (int i = 7; i >= 0; i--) {
             for (int j = 0; j < 8; j++) {
-                String s = "";
+                String stringPiece = "";
                 Piece p;
-                if (board[j][i] == null) {
-                    s = "-";
+                if (chessboard[j][i] == null) {
+                    stringPiece = "-";
                 } else {
-                    p = board[j][i];
+                    p = chessboard[j][i];
                     switch (p.color) {
                         case WHITE:
-                            s += "w";
+                            stringPiece += "w";
                             break;
                         case BLACK:
-                            s += "b";
+                            stringPiece += "b";
                             break;
                     }
                     switch (p.type) {
                         case ROOK:
-                            s += "R";
+                            stringPiece += "R";
                             break;
                         case KNIGHT:
-                            s += "N";
+                            stringPiece += "N";
                             break;
                         case BISHOP:
-                            s += "B";
+                            stringPiece += "B";
                             break;
                         case QUEEN:
-                            s += "Q";
+                            stringPiece += "Q";
                             break;
                         case KING:
-                            s += "K";
+                            stringPiece += "K";
                             break;
                         case PAWN:
-                            s += "P";
+                            stringPiece += "P";
                             break;
                     }
                 }
-                str[i][j] = s;
-                //System.out.print(s + "\t");
+                str[i][j] = stringPiece;
+
             }
-            //System.out.println();
         }
         return str;
     }

@@ -4,6 +4,9 @@ import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
 
+/**
+ * This class starts up the server and creates the game
+ */
 public class Server implements Runnable {
 
     protected int serverPort, gamePort;
@@ -44,18 +47,20 @@ public class Server implements Runnable {
                 throw new RuntimeException("Error accepting client connection", e);
             }
 
-            // The below code probably won't be needed.
-            /*if(playerCount==2){
-             createGame();
-             }*/
         }
         System.out.println("Server Stopped.");
     }
 
+    /*
+     This code checks to see if the program has stopped
+     */
     private synchronized boolean isStopped() {
         return this.isStopped;
     }
 
+    /*
+     Close the port and stop the server
+     */
     public synchronized void stop() {
         this.isStopped = true;
         try {
@@ -65,6 +70,9 @@ public class Server implements Runnable {
         }
     }
 
+    /*
+     This method opens the server port
+     */
     private void openServerSocket() {
         try {
             this.serverSocket = new ServerSocket(this.serverPort);
@@ -92,22 +100,42 @@ public class Server implements Runnable {
             name = "";
         }
 
+        /*
+        This method gets and returns the user name
+        @return name to return
+        */
         public synchronized String getUserName() {
             return name;
         }
 
+        /*
+        This method sets the user name
+        @user Name to set
+        */
         public synchronized void setUserName(String user) {
             name = user;
         }
 
+        /*
+        This method gets the object input stream
+        @return object input stream
+        */
         public synchronized ObjectInputStream getObjectInputStream() {
             return this.objectIn;
         }
 
+        /*
+        This method gets the object output stream
+        @return object output stream
+        */
         public synchronized ObjectOutputStream getObjectOutputStream() {
             return this.objectOut;
         }
 
+        /*
+        This method gets the socket
+        @return The socket
+        */
         public synchronized Socket getSocket() {
             return this.socket;
         }
@@ -233,6 +261,12 @@ public class Server implements Runnable {
         }
     }
 
+    /*
+     This method creates the game based on the two users that have accepted.
+     @param temp_sock Socket to start game on
+     @param p1 First player
+     @param p2 Second player
+     */
     public synchronized void createGame(ServerSocket temp_sock, String p1, String p2) {
         UserThread player1 = null, player2 = null;
         for (int i = 0; i < users.size(); ++i) {
@@ -317,22 +351,10 @@ public class Server implements Runnable {
         }
     }
 
-    /**
-     * Sends a message to a specified user.
-     *
-     * @param to ID of the user to send the message to.
-     * @param line String that is to be sent.
-     * @param bytes Number of bytes being transmitted.
+    /*
+     This method validates the new user
+     @param name User to validate
      */
-    /*public synchronized void SendMsg(int to, byte[] line, int length){
-     try{
-     threads[to].getOutputStream().write(line, 0, length);
-     threads[to].getOutputStream().flush();
-     }
-     catch(IOException e){
-     System.out.println("There was a problem sending the message");
-     }
-     }*/
     public synchronized boolean validateNewUser(String name) {
         boolean valid = true;
         for (int i = 0; i < users.size(); ++i) {
